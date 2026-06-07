@@ -56,16 +56,18 @@ class FlutterMediaSessionService : MediaSessionService() {
     private var hasAudioFocus = false
 
     // ---------------------------------------------------------------------------
-    // Background keep-alive (CPU + Wi-Fi)
+    // Background keep-alive (CPU + Wi-Fi) — opt-in
     //
     // A backgrounded session whose audio is rendered off-device — most notably a
     // Chromecast/DLNA control socket living on the local Wi-Fi network — is reaped
     // by Doze / app-standby a few minutes after the app is paused: the CPU sleeps
     // and the Wi-Fi radio is parked, so the socket dies ("Broken pipe"). The
-    // foreground media service alone does not prevent this on many OEMs, so while
-    // we are actively "playing" we additionally hold a partial wake lock (CPU) and
-    // a high-perf Wi-Fi lock (radio). Both are released the moment we stop
-    // playing and on service destroy, so they are bounded by the playback session.
+    // foreground media service alone does not prevent this on many OEMs.
+    //
+    // Opt-in via [applyBackgroundKeepAlive] (the `setBackgroundKeepAlive` API):
+    // while enabled we hold a partial wake lock (CPU) and a high-perf Wi-Fi lock
+    // (radio) for the whole session, released when disabled or on service
+    // destroy. Off by default so normal on-device playback pays no battery cost.
     // ---------------------------------------------------------------------------
     private val powerManager: PowerManager by lazy {
         getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -300,10 +302,17 @@ class FlutterMediaSessionService : MediaSessionService() {
      * Updates the playback state (status, position, speed) in the system controls.
      */
     fun updatePlaybackState(status: String, positionMs: Long, speed: Float, bufferedPositionMs: Long, repeatMode: Int, shuffleModeEnabled: Boolean) {
-        // Hold CPU + Wi-Fi locks only while actively playing so a backgrounded
-        // (e.g. casting) session survives Doze; drop them as soon as we stop.
-        if (status == "playing") acquirePlaybackLocks() else releasePlaybackLocks()
         player.updatePlaybackState(status, positionMs, speed, bufferedPositionMs, repeatMode, shuffleModeEnabled)
+    }
+
+    /**
+     * Toggle the background keep-alive locks (partial wake lock + high-perf
+     * Wi-Fi lock). Driven by the opt-in `setBackgroundKeepAlive` API. The locks
+     * are held for the whole enabled window — NOT gated on play/pause — because
+     * a paused cast still needs its control socket on the LAN kept alive.
+     */
+    fun applyBackgroundKeepAlive(enabled: Boolean) {
+        if (enabled) acquirePlaybackLocks() else releasePlaybackLocks()
     }
 
     /**

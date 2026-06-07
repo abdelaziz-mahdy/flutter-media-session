@@ -1,16 +1,22 @@
 ## 2.4.0
-* **Android background keep-alive (CPU + Wi-Fi)**: While a session is actively
-  `playing`, the Android foreground service now holds a partial wake lock and a
-  high-perf Wi-Fi lock, released the moment playback stops or the service is
-  destroyed. This prevents Doze / app-standby from suspending the CPU and parking
-  the Wi-Fi radio a few minutes after the app is backgrounded — which previously
-  tore down off-device sessions such as a Chromecast/DLNA control socket on the
-  local network ("Broken pipe").
-* **Android connectedDevice FGS type**: The media foreground service is now
-  declared as `mediaPlayback|connectedDevice` (with the matching
-  `FOREGROUND_SERVICE_CONNECTED_DEVICE`, `WAKE_LOCK`, and `ACCESS_WIFI_STATE`
-  permissions) so casting to a remote device is correctly classified on
-  Android 14+.
+* **Opt-in background keep-alive (`setBackgroundKeepAlive`)**: New API that keeps
+  a backgrounded session alive whose audio is rendered **off-device** — most
+  importantly a Chromecast/DLNA control socket on the local network, which the OS
+  otherwise tears down ("Broken pipe") a few minutes after the app is
+  backgrounded. Off by default; enable it only for that case (e.g. while casting)
+  and disable it when the session ends. Implemented with the best primitive each
+  platform offers:
+  * **Android**: partial wake lock (CPU) + high-perf Wi-Fi lock (radio), held for
+    the enabled window; the service is also declared
+    `mediaPlayback|connectedDevice` with the matching
+    `FOREGROUND_SERVICE_CONNECTED_DEVICE` / `WAKE_LOCK` / `ACCESS_WIFI_STATE`
+    permissions for Android 14+ casting.
+  * **macOS**: an `IOPMAssertion` that prevents idle system sleep.
+  * **Windows**: `SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)`.
+  * **Web**: best-effort Screen Wake Lock (screen-only; background tabs are still
+    throttled).
+  * **iOS**: no-op — the OS exposes no wake/Wi-Fi-lock primitive; background
+    survival there depends on the `audio` background mode.
 
 ## 2.3.0
 * **Perfect iOS Media Controls**:
