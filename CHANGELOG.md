@@ -1,3 +1,17 @@
+## 2.4.0
+* **Android background keep-alive (CPU + Wi-Fi)**: While a session is actively
+  `playing`, the Android foreground service now holds a partial wake lock and a
+  high-perf Wi-Fi lock, released the moment playback stops or the service is
+  destroyed. This prevents Doze / app-standby from suspending the CPU and parking
+  the Wi-Fi radio a few minutes after the app is backgrounded — which previously
+  tore down off-device sessions such as a Chromecast/DLNA control socket on the
+  local network ("Broken pipe").
+* **Android connectedDevice FGS type**: The media foreground service is now
+  declared as `mediaPlayback|connectedDevice` (with the matching
+  `FOREGROUND_SERVICE_CONNECTED_DEVICE`, `WAKE_LOCK`, and `ACCESS_WIFI_STATE`
+  permissions) so casting to a remote device is correctly classified on
+  Android 14+.
+
 ## 2.3.0
 * **Perfect iOS Media Controls**:
   * Registered native `changeShuffleModeCommand` and `changeRepeatModeCommand` targets on iOS/macOS to seamlessly sync repeat and shuffle modes.
