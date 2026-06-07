@@ -1,8 +1,33 @@
 group = "dev.wyrin.flutter_media_session"
 version = "1.0-SNAPSHOT"
 
+// Self-pin the Kotlin Gradle plugin so this library compiles with a Kotlin
+// version that accepts the `kotlinOptions { jvmTarget = ... }` DSL below.
+// Without this the plugin inherits the consuming app's Kotlin version (2.3+),
+// where the old String-based jvmTarget setter is a hard error.
+buildscript {
+    val kotlinVersion = "2.2.20"
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.11.1")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
 plugins {
     id("com.android.library")
+    id("kotlin-android")
 }
 
 
