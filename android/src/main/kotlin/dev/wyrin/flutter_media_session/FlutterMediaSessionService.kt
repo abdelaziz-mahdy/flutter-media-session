@@ -306,13 +306,65 @@ class FlutterMediaSessionService : MediaSessionService() {
     }
 
     /**
-     * Toggle the background keep-alive locks (partial wake lock + high-perf
-     * Wi-Fi lock). Driven by the opt-in `setBackgroundKeepAlive` API. The locks
-     * are held for the whole enabled window — NOT gated on play/pause — because
-     * a paused cast still needs its control socket on the LAN kept alive.
+     * Whether the opt-in background keep-alive window is active. While true the
+     * service must stay a *foreground* service even when playback is paused:
+     * on Android 12+ a cached (non-foreground) process is frozen by the
+     * cached-apps freezer regardless of held wake locks — the freezer disables
+     * a frozen app's wake locks, Dart timers stop, the cast heartbeat stops,
+     * and the receiver aborts the control socket (observed as
+     * "SocketException: Software caused connection abort, errno = 103" on
+     * resume). See [onUpdateNotification].
+     */
+    private var backgroundKeepAliveEnabled = false
+
+    /**
+     * Media3 demotes the service from the foreground whenever the player is
+     * not actively playing (`startInForegroundRequired == false`, e.g. the
+     * user paused the cast from the TV remote). Forcing the flag while the
+     * keep-alive window is active keeps the process exempt from the
+     * cached-apps freezer, which is what actually keeps a paused cast's
+     * control socket alive — the wake/Wi-Fi locks alone cannot survive a
+     * process freeze.
+     */
+    override fun onUpdateNotification(session: MediaSession, startInForegroundRequired: Boolean) {
+        super.onUpdateNotification(session, startInForegroundRequired || backgroundKeepAliveEnabled)
+    }
+
+    /**
+     * Media3's own criterion for "playback needs a foreground service":
+     * playing or about to play. Used to re-evaluate the foreground state when
+     * the keep-alive window toggles, so disabling keep-alive while paused
+     * demotes the service, but disabling it mid-playback does not.
+     */
+    private fun playbackRequiresForeground(): Boolean {
+        val p = mediaSession?.player ?: return false
+        return p.playWhenReady &&
+            (p.playbackState == Player.STATE_READY || p.playbackState == Player.STATE_BUFFERING)
+    }
+
+    /**
+     * Toggle the background keep-alive window (opt-in `setBackgroundKeepAlive`
+     * API). While enabled we hold a partial wake lock + high-perf Wi-Fi lock
+     * AND pin the service in the foreground (see [onUpdateNotification]) for
+     * the whole window — NOT gated on play/pause — because a paused cast still
+     * needs its control socket on the LAN kept alive.
      */
     fun applyBackgroundKeepAlive(enabled: Boolean) {
+        backgroundKeepAliveEnabled = enabled
         if (enabled) acquirePlaybackLocks() else releasePlaybackLocks()
+        // Re-evaluate the foreground state immediately: enabling while paused
+        // must promote before the freezer can act; disabling must demote
+        // unless playback itself still requires the foreground.
+        mediaSession?.let { session ->
+            try {
+                onUpdateNotification(session, playbackRequiresForeground())
+            } catch (e: Exception) {
+                // Promotion can fail if Android denies a background
+                // foreground-service (re)start; the locks are still held and
+                // the next playback state change retries via media3.
+                android.util.Log.w("FlutterMediaSession", "keep-alive foreground update failed", e)
+            }
+        }
     }
 
     /**
