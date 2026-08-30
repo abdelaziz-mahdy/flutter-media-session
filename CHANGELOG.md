@@ -1,3 +1,17 @@
+## 2.4.1
+* **Android: keep-alive now pins the foreground service.** With
+  `setBackgroundKeepAlive(true)`, the media service stays a *foreground*
+  service even while playback is paused. Media3 demotes the service when the
+  player isn't playing; on Android 12+ the cached-apps freezer then freezes
+  the process (wake locks are disabled for frozen apps), Dart timers stop,
+  the cast heartbeat stops, and the receiver aborts the control socket
+  (`SocketException ... errno = 103` on resume). Forcing
+  `startInForegroundRequired` while the keep-alive window is active keeps the
+  process freezer-exempt, so the wake/Wi-Fi locks can actually do their job.
+* Test fakes now implement `setBackgroundKeepAlive` (fixes test compilation).
+* Example: Gradle wrapper 8.14.3 (Flutter 3.47 minimum); wrapper properties
+  are now tracked so the example builds out of the box.
+
 ## 2.4.0
 * **Opt-in background keep-alive (`setBackgroundKeepAlive`)**: New API that keeps
   a backgrounded session alive whose audio is rendered **off-device** — most
