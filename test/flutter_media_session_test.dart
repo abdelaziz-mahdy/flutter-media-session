@@ -37,6 +37,9 @@ class MockFlutterMediaSessionPlatform
       Future.value();
 
   @override
+  Future<void> setBackgroundKeepAlive(bool enabled) => Future.value();
+
+  @override
   Stream<MediaAction> get onMediaAction => const Stream.empty();
 
   @override

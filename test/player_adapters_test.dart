@@ -54,6 +54,9 @@ class FakePlatform with MockPlatformInterfaceMixin implements FlutterMediaSessio
       Future.value();
 
   @override
+  Future<void> setBackgroundKeepAlive(bool enabled) => Future.value();
+
+  @override
   Stream<MediaAction> get onMediaAction => actionController.stream;
 
   @override
