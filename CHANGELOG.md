@@ -1,3 +1,8 @@
+## Unreleased
+
+### Bug Fixes
+* **Android**: Fixed an issue where background keep-alive (`setBackgroundKeepAlive`) could disconnect when playback was paused (e.g. while casting to a TV) on Android 12+.
+
 ## 3.0.1
 
 ### Bug Fixes
