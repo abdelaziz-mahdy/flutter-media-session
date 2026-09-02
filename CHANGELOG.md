@@ -1,4 +1,4 @@
-## 3.0.2-pre.1
+## 3.0.2
 
 ### Bug Fixes
 * **Android Custom Actions**: Fixed missing custom buttons (e.g., Shuffle, Repeat) in release builds by adding resource shrinking keep rules (`keep.xml`) and enhancing drawable resource resolution.
