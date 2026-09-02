@@ -147,6 +147,7 @@ class _PlayerHomeState extends State<PlayerHome> {
     };
     _listenMediaSessionActions();
     _listenAudioPlayerEvents();
+    _activate();
   }
 
   void _listenMediaSessionActions() {

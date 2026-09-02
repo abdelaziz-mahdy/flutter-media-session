@@ -1,7 +1,10 @@
-## Unreleased
+## 3.0.2-pre.1
 
 ### Bug Fixes
-* **Android**: Fixed an issue where background keep-alive (`setBackgroundKeepAlive`) could disconnect when playback was paused (e.g. while casting to a TV) on Android 12+.
+* **Android Custom Actions**: Fixed missing custom buttons (e.g., Shuffle, Repeat) in release builds by adding resource shrinking keep rules (`keep.xml`) and enhancing drawable resource resolution.
+* **Android Command Sync**: Synchronized updated player commands dynamically to active system controllers in `updateAvailableActions`, enabling immediate seek bar updates when toggling `seekTo`.
+* **Android Seek Control**: Ignore system seek gestures in `handleSeek` when `MediaAction.seekTo` is disabled.
+* **Android Keep-Alive**: Fixed an issue where background keep-alive (`setBackgroundKeepAlive`) could disconnect when playback was paused (e.g., while casting to a TV) on Android 12+.
 
 ## 3.0.1
 
