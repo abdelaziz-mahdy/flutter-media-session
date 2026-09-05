@@ -250,8 +250,7 @@ class FlutterMediaSessionService : MediaSessionService() {
             player.updateAvailableActions(initialActionNames)
         }
 
-        // Build the session BEFORE super.onCreate() with the initial custom layout
-        // so that the platform session (and OneUI handshake) immediately gets the CustomAction snapshot!
+        // Build the session
         mediaSession = MediaSession.Builder(this, player)
             .setSessionActivity(pendingIntent)
             .setCallback(CustomMediaSessionCallback())
