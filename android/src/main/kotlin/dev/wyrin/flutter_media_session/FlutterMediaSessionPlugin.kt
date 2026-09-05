@@ -33,7 +33,7 @@ class FlutterMediaSessionPlugin: FlutterPlugin, MethodCallHandler, ActivityAware
 
     private var pendingMetadata: Map<String, Any?>? = null
     private var pendingPlaybackState: Map<String, Any?>? = null
-    private var pendingAvailableActions: List<Any>? = null
+    var pendingAvailableActions: List<Any>? = null
     private var pendingActivateResult: Result? = null
     /**
      * When true, the service requests audio focus while playing and forwards
