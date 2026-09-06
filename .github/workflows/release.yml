@@ -96,13 +96,14 @@ jobs:
               }
             }
 
-            const body = `## What's changed
-
-### 📦 Changes
-${entries.join("\n")}
-
-### 🔗 Full Changelog
-https://github.com/${context.repo.owner}/${context.repo.repo}/compare/${previousTag || "v0.0.0"}...${tag}`;
+            const changesSection = entries.length > 0 ? entries.join('\n') : '* No pull requests recorded.';
+            const body = [
+              '### 📦 Changes',
+              changesSection,
+              '',
+              '### 🔗 Full Changelog',
+              `https://github.com/${context.repo.owner}/${context.repo.repo}/compare/${previousTag || "v0.0.0"}...${tag}`
+            ].join('\n');
 
             await github.rest.repos.createRelease({
               owner: context.repo.owner,

@@ -547,6 +547,23 @@ class FlutterMediaSessionService : MediaSessionService() {
             }
             return super.onCustomCommand(session, controller, customCommand, args)
         }
+
+        override fun onMediaButtonEvent(
+            session: MediaSession,
+            controllerInfo: MediaSession.ControllerInfo,
+            intent: Intent
+        ): Boolean {
+            val keyEvent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT, android.view.KeyEvent::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT) as? android.view.KeyEvent
+            }
+            if (keyEvent != null) {
+                android.util.Log.d("FlutterMediaSession", "onMediaButtonEvent: action=${keyEvent.action}, keyCode=${keyEvent.keyCode}")
+            }
+            return super.onMediaButtonEvent(session, controllerInfo, intent)
+        }
     }
 
     /**

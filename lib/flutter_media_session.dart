@@ -8,6 +8,7 @@ export 'src/models/media_metadata.dart';
 export 'src/models/playback_state.dart';
 export 'src/models/media_action.dart';
 export 'src/adapters/media_session_adapter.dart';
+export 'flutter_media_session_platform_interface.dart';
 
 /// The main entry point for the Flutter Media Session plugin.
 ///
