@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_media_session/flutter_media_session.dart';
-import 'package:flutter_media_session/flutter_media_session_platform_interface.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';

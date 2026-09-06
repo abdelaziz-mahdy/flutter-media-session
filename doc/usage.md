@@ -21,7 +21,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter_media_session/flutter_media_session.dart';
-import 'package:flutter_media_session/flutter_media_session_platform_interface.dart';
 
 /// A production-ready adapter to bridge `just_audio` [AudioPlayer] and [FlutterMediaSession].
 class JustAudioMediaSessionAdapter implements MediaSessionAdapter {
@@ -283,7 +282,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:flutter_media_session/flutter_media_session.dart';
-import 'package:flutter_media_session/flutter_media_session_platform_interface.dart';
 
 /// A production-ready adapter to bridge `media_kit` [Player] and [FlutterMediaSession].
 class MediaKitMediaSessionAdapter implements MediaSessionAdapter {
