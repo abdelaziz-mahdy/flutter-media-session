@@ -1,3 +1,12 @@
+## 3.0.3
+
+### Bug Fixes
+* **Android Media Buttons**: Fixed hardware media button interactions by updating `MediaButtonReceiver` to Media3 (`androidx.media3.session.MediaButtonReceiver`), adding `android.intent.action.MEDIA_BUTTON` to the service intent-filter, and overriding `onMediaButtonEvent` in `CustomMediaSessionCallback`.
+
+### Improvements
+* **Platform Interface Re-export**: Re-exported `flutter_media_session_platform_interface.dart` directly from `flutter_media_session.dart`, allowing developers to implement custom `MediaSessionAdapter`s using a single import.
+* **Documentation & Examples**: Updated `example/README.md` and `doc/usage.md` snippets to align with 3.x adapter patterns and remove deprecated 2.x API references.
+
 ## 3.0.2
 
 ### Bug Fixes
