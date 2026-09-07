@@ -1,3 +1,9 @@
+## 3.0.4-pre.1
+
+### Bug Fixes
+* **Android Media Session Lifecycle**: Fixed lingering notifications and zombie media controls on deactivation, and ensured state recovery upon re-activation.
+* **Example Application**: Re-bound adapter on activation and auto-resumed playback after seekTo.
+
 ## 3.0.3
 
 ### Bug Fixes

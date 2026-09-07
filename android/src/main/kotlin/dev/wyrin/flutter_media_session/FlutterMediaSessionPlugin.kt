@@ -87,7 +87,9 @@ class FlutterMediaSessionPlugin: FlutterPlugin, MethodCallHandler, ActivityAware
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         when (call.method) {
             "activate" -> {
-                if (FlutterMediaSessionService.instance != null) {
+                val service = FlutterMediaSessionService.instance
+                if (service != null) {
+                    syncPendingData()
                     result.success(null)
                 } else {
                     pendingActivateResult = result
@@ -107,6 +109,7 @@ class FlutterMediaSessionPlugin: FlutterPlugin, MethodCallHandler, ActivityAware
                 }
             }
             "deactivate" -> {
+                FlutterMediaSessionService.instance?.deactivate()
                 val intent = Intent(context, FlutterMediaSessionService::class.java)
                 serviceConnection?.let {
                     try { context.unbindService(it) } catch (e: Exception) {}

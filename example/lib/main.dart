@@ -216,6 +216,7 @@ class _PlayerHomeState extends State<PlayerHome> {
   }
 
   Future<void> _activate() async {
+    _listenMediaSessionActions();
     await _plugin.activate();
     await _plugin.setSkipIntervals(forwardSeconds: 10, backwardSeconds: 10);
     if (!mounted) return;
@@ -278,6 +279,7 @@ class _PlayerHomeState extends State<PlayerHome> {
   }
 
   void handleSeekAction(Duration newPosition) {
+    final bool wasPlaying = _status == PlaybackStatus.playing;
     if (mounted) {
       setState(() {
         _position = newPosition;
@@ -286,9 +288,14 @@ class _PlayerHomeState extends State<PlayerHome> {
     }
     _updatePlayback();
     _seekDebounce?.cancel();
-    _seekDebounce = Timer(const Duration(milliseconds: 200), () {
+    _seekDebounce = Timer(const Duration(milliseconds: 200), () async {
       if (mounted) {
-        _audioPlayer.seek(newPosition).catchError((_) {});
+        try {
+          await _audioPlayer.seek(newPosition);
+          if (wasPlaying && _audioPlayer.state != PlayerState.playing) {
+            await _audioPlayer.resume();
+          }
+        } catch (_) {}
       }
     });
   }

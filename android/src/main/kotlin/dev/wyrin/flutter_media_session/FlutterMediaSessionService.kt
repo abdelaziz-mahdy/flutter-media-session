@@ -300,6 +300,37 @@ class FlutterMediaSessionService : MediaSessionService() {
     }
 
     /**
+     * Deactivates the media session service: stops foreground, removes notification,
+     * releases media session and player, and terminates the service.
+     */
+    fun deactivate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
+        if (isReceiverRegistered) {
+            try {
+                unregisterReceiver(noisyReceiver)
+            } catch (e: Exception) {
+                android.util.Log.w("FlutterMediaSession", "Failed to unregister noisyReceiver", e)
+            }
+            isReceiverRegistered = false
+        }
+        abandonAudioFocus()
+        releasePlaybackLocks()
+        mediaSession?.let {
+            removeSession(it)
+            player.release()
+            it.release()
+            mediaSession = null
+        }
+        instance = null
+        stopSelf()
+    }
+
+    /**
      * Updates the media metadata displayed in the system controls.
      */
     fun updateMetadata(title: String?, artist: String?, album: String?, artworkUri: String?, durationMs: Long) {
