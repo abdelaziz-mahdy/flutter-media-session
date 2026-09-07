@@ -274,11 +274,18 @@ class FlutterMediaSessionService : MediaSessionService() {
         return mediaSession
     }
 
+    /**
+     * The user swiped the app away. Unlike a real background-audio app, this
+     * plugin's player is a bridge driven entirely by the Dart side — with the
+     * app task gone there is nothing left to control, so a surviving service
+     * is a zombie: a stuck media notification, and (while the background
+     * keep-alive was enabled, e.g. casting) held wake/Wi-Fi locks and a
+     * foreground service that never end. Tear everything down unconditionally;
+     * onDestroy releases the session, the locks, and the notification.
+     */
     override fun onTaskRemoved(rootIntent: Intent?) {
-        val player = mediaSession?.player
-        if (player == null || !player.playWhenReady || player.mediaItemCount == 0) {
-            stopSelf()
-        }
+        applyBackgroundKeepAlive(false)
+        stopSelf()
         super.onTaskRemoved(rootIntent)
     }
 
