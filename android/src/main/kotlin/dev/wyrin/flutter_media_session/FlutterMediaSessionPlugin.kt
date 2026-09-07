@@ -225,6 +225,11 @@ class FlutterMediaSessionPlugin: FlutterPlugin, MethodCallHandler, ActivityAware
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+        FlutterMediaSessionService.instance?.deactivate()
+        serviceConnection?.let {
+            try { context.unbindService(it) } catch (e: Exception) {}
+            serviceConnection = null
+        }
         channel.setMethodCallHandler(null)
         eventChannel.setStreamHandler(null)
         instance = null

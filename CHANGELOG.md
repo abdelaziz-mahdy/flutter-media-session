@@ -1,3 +1,9 @@
+## 3.0.4-pre.2
+
+### Bug Fixes
+* **Android Hardware Media Buttons**: Directly intercepted and dispatched `ACTION_DOWN` media button events (play, pause, next, previous, stop) to Flutter in `onMediaButtonEvent` (#38).
+* **Android Cleanup on Detach**: Automatically deactivated and released media session resources when the Flutter engine detaches.
+
 ## 3.0.4-pre.1
 
 ### Bug Fixes

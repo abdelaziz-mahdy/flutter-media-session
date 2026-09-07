@@ -592,6 +592,51 @@ class FlutterMediaSessionService : MediaSessionService() {
             }
             if (keyEvent != null) {
                 android.util.Log.d("FlutterMediaSession", "onMediaButtonEvent: action=${keyEvent.action}, keyCode=${keyEvent.keyCode}")
+                if (keyEvent.action == android.view.KeyEvent.ACTION_DOWN) {
+                    when (keyEvent.keyCode) {
+                        android.view.KeyEvent.KEYCODE_MEDIA_PLAY -> {
+                            FlutterMediaSessionPlugin.instance?.sendAction("play")
+                            return true
+                        }
+                        android.view.KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+                            FlutterMediaSessionPlugin.instance?.sendAction("pause")
+                            return true
+                        }
+                        android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
+                        android.view.KeyEvent.KEYCODE_HEADSETHOOK -> {
+                            val action = if (player.isCurrentlyPlaying()) "pause" else "play"
+                            FlutterMediaSessionPlugin.instance?.sendAction(action)
+                            return true
+                        }
+                        android.view.KeyEvent.KEYCODE_MEDIA_NEXT,
+                        android.view.KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
+                            FlutterMediaSessionPlugin.instance?.sendAction("skipToNext")
+                            return true
+                        }
+                        android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS,
+                        android.view.KeyEvent.KEYCODE_MEDIA_REWIND -> {
+                            FlutterMediaSessionPlugin.instance?.sendAction("skipToPrevious")
+                            return true
+                        }
+                        android.view.KeyEvent.KEYCODE_MEDIA_STOP -> {
+                            FlutterMediaSessionPlugin.instance?.sendAction("stop")
+                            return true
+                        }
+                    }
+                } else if (keyEvent.action == android.view.KeyEvent.ACTION_UP) {
+                    // Consume ACTION_UP for handled keys so default media receivers don't double trigger
+                    when (keyEvent.keyCode) {
+                        android.view.KeyEvent.KEYCODE_MEDIA_PLAY,
+                        android.view.KeyEvent.KEYCODE_MEDIA_PAUSE,
+                        android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
+                        android.view.KeyEvent.KEYCODE_HEADSETHOOK,
+                        android.view.KeyEvent.KEYCODE_MEDIA_NEXT,
+                        android.view.KeyEvent.KEYCODE_MEDIA_FAST_FORWARD,
+                        android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS,
+                        android.view.KeyEvent.KEYCODE_MEDIA_REWIND,
+                        android.view.KeyEvent.KEYCODE_MEDIA_STOP -> return true
+                    }
+                }
             }
             return super.onMediaButtonEvent(session, controllerInfo, intent)
         }
